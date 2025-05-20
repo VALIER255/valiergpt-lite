@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import openai
 import os
 
 app = Flask(__name__)
+CORS(app)  # Autorise les requêtes Cross-Origin
 
-# 🔐 À remplacer par ta propre clé API OpenAI
+# 🔐 À remplacer par ta propre clé API OpenAI (ou configurer en variable Render)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/analyse', methods=['POST'])
@@ -47,7 +49,6 @@ Objectifs :
 Utilise un ton professionnel, concis, orienté courtier. Ne fais pas de généralités vagues.
 """
 
-    # Appel à l'API OpenAI
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
@@ -66,6 +67,5 @@ Utilise un ton professionnel, concis, orienté courtier. Ne fais pas de généra
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
