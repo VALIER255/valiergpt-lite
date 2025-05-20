@@ -8,23 +8,63 @@ CORS(app)
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def analyse_metier(data):
+def analyse_metier_avancee(data):
     activité = data.get("activite", "").lower()
+    statut = data.get("statut", "").lower()
+    ca_str = data.get("ca", "0").replace("€", "").replace(" ", "").replace("M", "00000")
+    try:
+        ca = int(float(ca_str))
+    except:
+        ca = 0
+    salaries = int(data.get("salaries", "0"))
+    contrats = data.get("contrats", "").lower()
+    vehicules = data.get("vehicules", "")
+    local = data.get("local", "").lower()
+
     risques = []
+    fiches = []
     suggestions = []
 
-    if any(mot in activité for mot in ["plâtrerie", "maçonnerie", "charpente", "gros œuvre", "construction"]):
-        risques.append("Travaux structurels → décennale obligatoire")
-        suggestions.append("Souscrire RC + RC décennale")
-    if int(data.get("salaries", "0")) >= 1:
-        suggestions.append("Prévoir prévoyance ou santé collective")
-    if "local" in data.get("local", "").lower():
-        suggestions.append("Vérifier la couverture MRP")
-    if int(data.get("vehicules", "0").split()[0]) >= 2:
-        suggestions.append("Étudier une formule flotte")
+    if any(mot in activité for mot in ["plâtrerie", "maçonnerie", "charpente", "gros œuvre", "construction", "btp", "rénovation"]):
+        if "décennale" not in contrats:
+            risques.append("⚠️ Décennale absente pour activité BTP")
+            fiches.append("#fichedecennale")
+        suggestions.append("Souscrire RC Pro + RC Décennale")
 
-    retour = "\n".join(risques + suggestions)
-    return retour if retour else "Aucune logique détectée automatiquement."
+    if ca > 100000:
+        suggestions.append("Revoir les seuils de garantie en fonction du CA")
+    if ca > 250000:
+        suggestions.append("Vérifier pertinence MRP et santé collective")
+        fiches.append("#fichemrp")
+
+    if "auto" in statut or "micro" in statut:
+        risques.append("⚠️ Statut auto-entrepreneur : exclusions possibles en PJ / MRP")
+        fiches.append("#fichepjamateur")
+
+    if "sasu" in statut or "sas" in statut:
+        if salaries >= 1:
+            suggestions.append("Prévoir prévoyance ou santé dirigeant")
+        fiches.append("#ficheprevoyance")
+
+    try:
+        veh_count = int(vehicules.split()[0])
+        if veh_count >= 2:
+            suggestions.append("Étudier contrat flotte")
+            fiches.append("#ficheflotteaxa")
+    except:
+        pass
+
+    if "oui" in local:
+        suggestions.append("Vérifier présence ou besoin d’une MRP")
+        fiches.append("#fichemrp")
+
+    if "sci" in statut and "habitation" in activité:
+        risques.append("⚠️ SCI non acceptée en habitation AXA")
+        fiches.append("#fichepnoaxa")
+
+    analyse = "\n".join(risques + suggestions)
+    fiches_mention = ", ".join(set(fiches))
+    return analyse, fiches_mention
 
 @app.route('/analyse', methods=['POST'])
 def analyse():
@@ -40,10 +80,10 @@ def analyse():
     contrats = data.get("contrats", "Non précisé")
     commentaires = data.get("commentaires", "")
 
-    analyse_métier = analyse_metier(data)
+    analyse_métier, fiches = analyse_metier_avancee(data)
 
     prompt = f"""
-Tu es un assistant spécialisé en assurance professionnelle au sein du cabinet VALIER.
+Tu es un assistant expert en assurance professionnelle chez VALIER.
 
 Voici les données du client :
 
@@ -57,16 +97,18 @@ Voici les données du client :
 - Contrats existants : {contrats}
 - Commentaires : {commentaires}
 
-Voici l'analyse préliminaire métier (interne) :
+Analyse interne métier (pré-règles appliquées) :
 {analyse_métier}
 
-Rédige une synthèse claire structurée en 4 blocs :
-1. 📌 Profil du client (activité, statut, CA, effectif)
-2. ⚠️ Risques identifiés (métiers, véhicules, salariés, locaux)
-3. ✅ Contrats recommandés (obligatoires + optionnels)
-4. 🧩 Actions immédiates Valier à mettre en place
+Fiches EVA suggérées : {fiches}
 
-Utilise un ton professionnel, concis et orienté courtier. Termine par une mention du #ProtocoleValier applicable.
+Structure ta réponse comme suit :
+1. 📌 Profil du client
+2. ⚠️ Risques identifiés
+3. ✅ Contrats recommandés
+4. 🧩 Actions immédiates Valier
+
+Mentionne en conclusion les fiches #EVA utiles et la pertinence du #ProtocoleValier.
 """
 
     try:
@@ -77,7 +119,7 @@ Utilise un ton professionnel, concis et orienté courtier. Termine par une menti
                 {"role": "user", "content": prompt}
             ],
             temperature=0.5,
-            max_tokens=600
+            max_tokens=700
         )
         message = response.choices[0].message.content
         return jsonify({"diagnostic": message})
