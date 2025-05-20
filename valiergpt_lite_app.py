@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import openai
+from openai import OpenAI
 import os
 
 app = Flask(__name__)
-CORS(app)  # Autorise les requêtes Cross-Origin
+CORS(app)
 
-# 🔐 À remplacer par ta propre clé API OpenAI (ou configurer en variable Render)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialiser le client OpenAI avec la nouvelle API (>= 1.0.0)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route('/analyse', methods=['POST'])
 def analyse():
@@ -50,7 +50,7 @@ Utilise un ton professionnel, concis, orienté courtier. Ne fais pas de généra
 """
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "Tu es un expert en assurance professionnelle."},
@@ -60,7 +60,7 @@ Utilise un ton professionnel, concis, orienté courtier. Ne fais pas de généra
             max_tokens=600
         )
 
-        message = response['choices'][0]['message']['content']
+        message = response.choices[0].message.content
         return jsonify({"diagnostic": message})
 
     except Exception as e:
