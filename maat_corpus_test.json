@@ -1,0 +1,30 @@
+{
+  "Bloc A": {
+    "Si\u00e8ge social en France ou DOM": true,
+    "Forme juridique accept\u00e9e (hors SCI)": true
+  },
+  "Bloc B": {
+    "Activit\u00e9 dans la nomenclature autoris\u00e9e": true,
+    "Chiffre d'affaires \u2265 35 000 \u20ac": true,
+    "Chiffre d'affaires \u2264 5 000 000 \u20ac": true
+  },
+  "Bloc C": {
+    "Pas d\u2019ant\u00e9c\u00e9dent de r\u00e9siliation pour sinistres": true,
+    "Pas de sinistres d\u00e9cennaux r\u00e9cents": true
+  },
+  "Bloc D": {
+    "Respect des plafonds par type d\u2019activit\u00e9": true
+  },
+  "Bloc E": {
+    "Statut juridique exclu": false
+  },
+  "Bloc F": {
+    "Annexes documentaires pr\u00e9sentes": true
+  },
+  "Bloc G": {
+    "Pas d\u2019activit\u00e9s accessoires interdites": true
+  },
+  "Bloc H": {
+    "Localisation des chantiers en France ou DOM": true
+  }
+}
