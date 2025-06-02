@@ -5,71 +5,51 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-# Chargement du corpus Maat au démarrage
-with open("maat.json", encoding="utf-8") as f:
-    maat_corpus = json.load(f)
+# Exemple de fonction de validation simplifiée basée sur la logique Maat
+def valider_client(data):
+    diagnostic = []
 
+    activite = data.get("activite", "").lower()
+    ca = data.get("chiffre_affaires", 0)
+    siege = data.get("siege_social", "").upper()
 
-def valider_blocs_maat(data_client):
-    """
-    Simule une validation bloc par bloc via les règles métier stockées dans maat_corpus.
-    Retourne les blocs validés, une synthèse, et des recommandations simples.
-    """
-    activite = data_client.get("activite", "").lower()
-    recommendations = []
-    blocs_valides = []
-    synthese = []
+    # Bloc A : Siège social
+    if not siege:
+        diagnostic.append("Siège social non précisé.")
+    elif not (siege.startswith("FR") or siege.startswith("GP") or siege.startswith("RE") or siege.startswith("MQ") or siege.startswith("GF") or siege.startswith("YT") or siege.startswith("MF")):
+        diagnostic.append("Entreprise hors zone France / DOM non admissible pour ASBTP.")
 
-    # Vérification activité compatible avec Allianz ASBTP
-    if any(mot in activite for mot in ["maçon", "charpentier", "construction", "gros oeuvre"]):
-        for bloc in maat_corpus:
-            nom = bloc.get("bloc")
-            regle = bloc.get("regle")
-            description = bloc.get("resume")
-            if eval(regle, {}, data_client):  # on évalue la règle sur le JSON client
-                blocs_valides.append(nom)
-                synthese.append(f"✅ Bloc {nom} validé : {description}")
-            else:
-                synthese.append(f"❌ Bloc {nom} non validé : {description}")
+    # Bloc B : Forme juridique - ignorée ici pour simplification
 
-        recommendations.append("Proposer la #fichedecennaleallianz si tous les blocs sont valides.")
-        if "bloc H" not in blocs_valides:
-            recommendations.append("Vérifier la présence d’une protection juridique.")
+    # Bloc C : Activité
+    activites_autorisees = [
+        "maconnerie", "charpente", "couverture", "carrelage", "plomberie",
+        "electricite", "peinture", "platrerie", "etancheite"
+    ]
+    if activite not in activites_autorisees:
+        diagnostic.append("Activité non admissible pour ASBTP : {}".format(activite))
 
+    # Bloc D : Chiffre d'affaires
+    if ca < 35000:
+        diagnostic.append("Chiffre d'affaires trop faible pour souscription (minimum 35 000 €).")
+    elif ca > 5000000:
+        diagnostic.append("Chiffre d'affaires trop élevé pour ce produit (max 5 M€).")
+
+    # Bloc E : Autres critères ignorés pour simplification
+
+    if not diagnostic:
+        return "Client admissible pour souscription ASBTP."
     else:
-        synthese.append("Activité non compatible avec ASBTP Allianz (charpentier, maçon, etc. uniquement).")
-        recommendations.append("Proposer autre contrat décennale si activité compatible.")
-
-    return {
-        "diagnostic": "\n".join(synthese),
-        "blocs_valides": blocs_valides,
-        "recommandations": recommendations,
-        "source": "Elron (Maat)",
-        "debug": True
-    }
-
+        return "\n".join(diagnostic)
 
 @app.route("/analyse", methods=["POST"])
 def analyse():
     try:
-        data = request.json
-        mode = data.get("mode", "auto")
-
-        if mode == "guidé":
-            resultat = valider_blocs_maat(data)
-            return jsonify(resultat)
-
-        else:
-            # Fallback : réponse générale CGT (pas de logique métier)
-            return jsonify({
-                "diagnostic": "Merci pour votre demande. Nous avons besoin de plus d’informations pour orienter votre assurance professionnelle. Veuillez préciser l’activité, le chiffre d’affaires, le statut juridique, les véhicules, les locaux et les contrats existants.",
-                "source": "CGT (générique)",
-                "debug": False
-            })
-
+        data = request.get_json()
+        resultat = valider_client(data)
+        return jsonify({"diagnostic": resultat})
     except Exception as e:
-        return jsonify({"error": str(e)})
-
+        return jsonify({"erreur": str(e)}), 400
 
 if __name__ == "__main__":
     app.run(debug=True)
