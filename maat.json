@@ -1,0 +1,81 @@
+{
+  "ASBTP_Allianz": {
+    "bloc_A": {
+      "intitule": "Eligibilité géographique et statutaire",
+      "siege_social_accepte": ["France métropolitaine", "DOM (Réunion, Guadeloupe, Martinique, Guyane)"],
+      "statuts_acceptes": ["EI", "EURL", "SARL", "SASU", "SAS", "SCOP", "Sociétés en création"],
+      "restrictions": ["SCI exclues (sauf exception rare avec justification technique et commerciale)"]
+    },
+    "bloc_B": {
+      "intitule": "Chiffre d'affaires et ancienneté",
+      "anciennete_minimale": "aucune",
+      "chiffre_affaires_minimum": 35000,
+      "regime_tarifaire": {
+        "forfaitaire_jusqu_a": 200000,
+        "au_dela": "tarification révisable annuelle sur base CA N-1"
+      }
+    },
+    "bloc_C": {
+      "intitule": "Activités assurables",
+      "referentiel": "Nomenclature Allianz Solution BTP",
+      "types_activites": {
+        "assurables": "Tous codes autorisés dans la nomenclature ASBTP",
+        "soumis_a_validation": ["Activités mixtes", "Multi-corps d'état", "Auto-construction"],
+        "exclues": ["Professions intellectuelles du bâtiment (MOE, architectes, BET, sauf si travaux exécutés en propre)"]
+      }
+    },
+    "bloc_D": {
+      "intitule": "Antécédents d'assurance et sinistralité",
+      "antécédents_requis": {
+        "sans_assurance": "Accepté avec justification (création ou interruption)",
+        "avec_assurance": "Fournir attestation + relevé de sinistralité sur 5 ans"
+      },
+      "sinistres": {
+        "sans_sinistre": "OK",
+        "avec_sinistre": "Accepté si peu fréquents et montants raisonnables (analyse au cas par cas)"
+      }
+    },
+    "bloc_E": {
+      "intitule": "Règles de cumul d'activités",
+      "principes": {
+        "activité_principale": "Doit représenter plus de 50% du chiffre d'affaires",
+        "cumul_activites": "Possible si cohérentes techniquement et tarifairement",
+        "activites_separees": "Peuvent nécessiter deux contrats si trop hétérogènes"
+      }
+    },
+    "bloc_F": {
+      "intitule": "Acceptation technique",
+      "criteres": {
+        "proprete_dossier": "Aucune incohérence entre CA, activité, assurance antérieure",
+        "profil_debutant": "Accepté avec formation ou accompagnement",
+        "profil_confirme": "Favorable si sinistralité maîtrisée"
+      }
+    },
+    "bloc_G": {
+      "intitule": "Activités sensibles ou surveillées",
+      "activites_sensibles": ["Étanchéité", "Gros œuvre", "Fondations spéciales", "Travaux en sous-œuvre", "Charpente", "Ossature bois", "Chantiers supérieurs à 500 000 €"],
+      "conditions": {
+        "acceptation": "Possible avec expérience, faible sinistralité et bon dossier",
+        "renforcement": "Franchise ou prime majorée"
+      }
+    },
+    "bloc_H": {
+      "intitule": "Pièces justificatives requises",
+      "documents_obligatoires": [
+        "Extrait Kbis de moins de 3 mois",
+        "Relevé d’identité bancaire (RIB)",
+        "Pièce d’identité du représentant légal",
+        "Justificatif de domicile (si entreprise en création ou sans siège fixe)",
+        "Attestation URSSAF à jour",
+        "Dernier avis de situation SIRENE",
+        "Attestations d’assurance antérieures (décennale)",
+        "Relevé de sinistralité des 5 dernières années",
+        "Description détaillée de l’activité réelle si différente du code APE",
+        "Justificatif de formation ou qualification si demandé",
+        "Devis type ou photos de chantiers réalisés",
+        "Bail ou acte de propriété du siège / local pro (si applicable)",
+        "Pour SCI ou montage complexe : statuts, convention d’usage, preuve du lien juridique"
+      ]
+    }
+  }
+}
