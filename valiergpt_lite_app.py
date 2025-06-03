@@ -9,14 +9,23 @@ def analyser_client(data):
     produits = []
     alertes = []
 
-    activite = data.get("activite_principale", "").lower()
+    activite = data.get("activite_principale", "").lower().strip()
     ca = data.get("chiffre_affaires", 0)
-    nb_salaries = data.get("nombre_salaries", 0)
-    dom = data.get("siege_dom", False)
+    statut = data.get("statut_juridique", "").lower().strip()
 
-    # Exemple simple de logique conditionnelle métier
-    if "maçonnerie" in activite and ca <= 500000 and not dom:
-        produits.append("RC Décennale Allianz – ASBTP")
+    activites_eligibles = ["maçonnerie", "maçon", "charpentier", "charpente", "gros œuvre"]
+
+    if activite in activites_eligibles:
+        if statut == "sci":
+            alertes.append("❗️ SCI non éligible à la RC Décennale Allianz.")
+        elif 35000 <= ca <= 5000000:
+            produits.append("RC Décennale Allianz – ASBTP")
+        elif ca > 5000000:
+            alertes.append("CA trop élevé pour ce produit (max 5 M€).")
+        else:
+            alertes.append("CA trop faible pour Allianz (minimum 35 000 €).")
+    else:
+        alertes.append(f"Activité « {activite} » non éligible à ASBTP Allianz.")
 
     if not produits:
         alertes.append("Aucun produit recommandé avec les données actuelles.")
