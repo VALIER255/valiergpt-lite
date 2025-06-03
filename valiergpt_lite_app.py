@@ -26,7 +26,7 @@ def analyser_client(data):
         "alertes": alertes
     }
 
-@app.route("/diagnostic", methods=["POST"])
+@app.route("/analyse", methods=["POST"])
 def diagnostic():
     data = request.get_json()
     resultat = analyser_client(data)
