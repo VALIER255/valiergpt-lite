@@ -1,3 +1,4 @@
+
 # maat_logique_decennale_allianz.py
 
 def normalize_activite(activite):
