@@ -10,7 +10,8 @@ CORS(app)
 @app.route('/analyse', methods=['POST'])
 def analyse():
     try:
-        data = request.json
+        data = request.get_json(force=True)
+        print("📥 Données reçues :", data)
 
         # Normalisation de l'activité si présente
         if "activite_principale" in data:
