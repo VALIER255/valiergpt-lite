@@ -15,10 +15,10 @@ def analyser(donnees_client: dict) -> dict:
 
     resultats = verifier_eligibilite_allianz_decennale(statut, activite, chiffre_affaires)
 
-    if resultats["eligibilite"]:
-        produits.append("RC Décennale Allianz – ASBTP")
+    if resultats.get("eligibilite"):
+        produits.extend(resultats.get("produits_recommandes", []))
     else:
-        alertes.extend(resultats["raisons"])
+        alertes.extend(resultats.get("alertes", []))
 
     return {
         "produits_recommandes": produits,
