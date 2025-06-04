@@ -14,7 +14,7 @@ def analyser(donnees_client: dict) -> dict:
     chiffre_affaires = donnees_client.get("chiffre_affaires", 0)
 
     resultats = verifier_eligibilite_allianz_decennale(statut, activite, chiffre_affaires)
-
+print("DEBUG:", resultats)  # TEMPORAIRE pour test Render (à commenter après)
     if resultats.get("eligibilite"):
         produits.extend(resultats.get("produits_recommandes", []))
     else:
