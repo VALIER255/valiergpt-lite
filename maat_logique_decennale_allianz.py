@@ -7,47 +7,53 @@ def normalize_activite(activite: str) -> str:
     """
     return activite.strip().lower()
 
-def verifier_eligibilite_allianz_decennale(statut: str, activite: str, ca: int) -> dict:
-    """
-    Applique les règles d'éligibilité Allianz pour la RC Décennale.
-    Retourne un dictionnaire avec les alertes et la liste des produits recommandés.
-    """
-    alertes = []
+
+def verifier_eligibilite_allianz_decennale(statut: str, activite: str, chiffre_affaires: float) -> dict:
+    raisons = []
     produits_recommandes = []
+    eligibilite = True
 
-    statut_normalise = statut.strip().lower()
-    activite_normalisee = normalize_activite(activite)
+    statut = statut.lower().strip()
+    activite = activite.lower().strip()
 
-    # Bloc 1 — Statuts exclus
-    if statut_normalise in ["sci", "sci construction vente", "association", "auto-construction"]:
-        alertes.append("Les SCI, associations et structures d'auto-construction ne sont pas assurables en RC Décennale Allianz.")
-        return {"alertes": alertes, "produits_recommandes": produits_recommandes}
+    # Bloc 1 – Exclusions catégoriques
+    if statut in ["sci", "association", "auto-construction"]:
+        raisons.append("Les SCI, associations et structures d'auto-construction ne sont pas assurables en RC Décennale Allianz.")
+        eligibilite = False
 
-    # Bloc 2 — Activités interdites
+    # Bloc 2 – Activités interdites
     activites_interdites = [
-        "désamiantage", "forage pétrolier", "nucléaire", "maritime", "offshore", "conception d'ouvrages d'art",
-        "maîtrise d'œuvre", "bureau d'étude", "architecte", "éolien", "photovoltaïque"
+        "désamiantage", "nucléaire", "offshore", "fondations spéciales", "ouvrages maritimes", "ouvrages fluviaux"
     ]
-    for mot in activites_interdites:
-        if mot in activite_normalisee:
-            alertes.append(f"L'activité déclarée contient un terme interdit pour Allianz : {mot}")
-            return {"alertes": alertes, "produits_recommandes": produits_recommandes}
+    if any(interdite in activite for interdite in activites_interdites):
+        raisons.append(f"L'activité '{activite}' fait partie des exclusions Allianz (ex : {', '.join(activites_interdites)}).")
+        eligibilite = False
 
-    # Bloc 3 — CA minimum
-    if ca < 35000:
-        alertes.append("Le chiffre d'affaires est insuffisant pour l'acceptation Allianz (minimum 35 000 €).")
-        return {"alertes": alertes, "produits_recommandes": produits_recommandes}
+    # Bloc 3 – Seuil minimum de chiffre d'affaires
+    if chiffre_affaires < 35000:
+        raisons.append("Le chiffre d'affaires est insuffisant pour l'acceptation Allianz (minimum 35 000 €).")
+        eligibilite = False
 
-    # Bloc 4 — CA entre 35k et 200k
-    if 35000 <= ca <= 200000:
-        produits_recommandes.append("RC Décennale Allianz – ASBTP")
-        return {"alertes": alertes, "produits_recommandes": produits_recommandes}
+    # Bloc 4 – Activités éligibles avec forfait
+    activites_forfaitaires = [
+        "maçonnerie", "charpente", "plomberie", "électricité", "peinture", "carrelage"
+    ]
+    if activite in activites_forfaitaires and 35000 <= chiffre_affaires <= 200000:
+        produits_recommandes.append("RC Décennale Allianz – ASBTP Forfaitaire")
+        eligibilite = True
 
-    # Bloc 5 — CA > 200k → contrat révisable
-    if ca > 200000:
-        produits_recommandes.append("RC Décennale Allianz – ASBTP (contrat révisable)")
-        return {"alertes": alertes, "produits_recommandes": produits_recommandes}
+    # Bloc 5 – Activités révisables au-delà de 200 000 €
+    if activite in activites_forfaitaires and chiffre_affaires > 200000:
+        produits_recommandes.append("RC Décennale Allianz – ASBTP Révisable")
+        eligibilite = True
 
-    # Bloc 6 — Sécurité pour activité non reconnue (si aucune règle n’a matché)
-    alertes.append("Aucun produit recommandé avec les données actuelles.")
-    return {"alertes": alertes, "produits_recommandes": produits_recommandes,"activite": activite_normalisee }
+    # Bloc 6 – Cas ambigus ou spéciaux
+    if activite not in activites_forfaitaires + activites_interdites:
+        raisons.append("Activité inhabituelle ou nécessitant un visa technique Allianz. Étude manuelle requise.")
+        eligibilite = False
+
+    return {
+        "eligibilite": eligibilite,
+        "raisons": raisons,
+        "produits_recommandes": produits_recommandes
+    }
