@@ -7,7 +7,7 @@ def normalize_activite(activite: str) -> str:
     """
     return activite.strip().lower()
 
-def verifier_eligibilite_allianz_decennale(statut: str, activite: str, ca: float) -> dict:
+def verifier_eligibilite_allianz_decennale(statut: str, activite: str, ca: int) -> dict:
     """
     Applique les règles d'éligibilité Allianz pour la RC Décennale.
     Retourne un dictionnaire avec les alertes et la liste des produits recommandés.
