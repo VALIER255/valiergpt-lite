@@ -1,54 +1,53 @@
-
 # fichier : maat_logique_decennale_allianz.py
 
 def normalize_activite(activite: str) -> str:
-    """
-    Normalise l'intitulé d'activité pour simplifier les comparaisons.
-    """
     return activite.strip().lower()
 
 
 def verifier_eligibilite_allianz_decennale(statut: str, activite: str, chiffre_affaires: float) -> dict:
     raisons = []
     produits_recommandes = []
-    eligibilite = True
 
     statut = statut.lower().strip()
     activite = activite.lower().strip()
 
+    # Initialisation
+    eligibilite = True
+
     # Bloc 1 – Exclusions catégoriques
-    if statut in ["sci", "association", "auto-construction"]:
+    bloc1 = statut not in ["sci", "association", "auto-construction"]
+    if not bloc1:
         raisons.append("Les SCI, associations et structures d'auto-construction ne sont pas assurables en RC Décennale Allianz.")
-        eligibilite = False
+    eligibilite = eligibilite and bloc1
 
     # Bloc 2 – Activités interdites
     activites_interdites = [
         "désamiantage", "nucléaire", "offshore", "fondations spéciales", "ouvrages maritimes", "ouvrages fluviaux"
     ]
-    if any(interdite in activite for interdite in activites_interdites):
+    bloc2 = not any(interdite in activite for interdite in activites_interdites)
+    if not bloc2:
         raisons.append(f"L'activité '{activite}' fait partie des exclusions Allianz (ex : {', '.join(activites_interdites)}).")
-        eligibilite = False
+    eligibilite = eligibilite and bloc2
 
     # Bloc 3 – Seuil minimum de chiffre d'affaires
-    if chiffre_affaires < 35000:
+    bloc3 = chiffre_affaires >= 35000
+    if not bloc3:
         raisons.append("Le chiffre d'affaires est insuffisant pour l'acceptation Allianz (minimum 35 000 €).")
-        eligibilite = False
+    eligibilite = eligibilite and bloc3
 
-    # Bloc 4 – Activités éligibles avec forfait
+    # Bloc 4 et 5 – Produits forfaitaires ou révisables
     activites_forfaitaires = [
         "maçonnerie", "charpente", "plomberie", "électricité", "peinture", "carrelage"
     ]
-    if activite in activites_forfaitaires and 35000 <= chiffre_affaires <= 200000:
-        produits_recommandes.append("RC Décennale Allianz – ASBTP Forfaitaire")
-        eligibilite = True
+    if eligibilite and activite in activites_forfaitaires:
+        if chiffre_affaires <= 200000:
+            produits_recommandes.append("RC Décennale Allianz – ASBTP Forfaitaire")
+        else:
+            produits_recommandes.append("RC Décennale Allianz – ASBTP Révisable")
 
-    # Bloc 5 – Activités révisables au-delà de 200 000 €
-    if activite in activites_forfaitaires and chiffre_affaires > 200000:
-        produits_recommandes.append("RC Décennale Allianz – ASBTP Révisable")
-        eligibilite = True
-
-    # Bloc 6 – Cas ambigus ou spéciaux
-    if activite not in activites_forfaitaires + activites_interdites:
+    # Bloc 6 – Cas inhabituels (à la fin si tout le reste passe mais activité inconnue)
+    bloc6 = activite in activites_forfaitaires or any(interdite in activite for interdite in activites_interdites)
+    if eligibilite and not bloc6:
         raisons.append("Activité inhabituelle ou nécessitant un visa technique Allianz. Étude manuelle requise.")
         eligibilite = False
 
