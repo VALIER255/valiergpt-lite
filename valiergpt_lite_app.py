@@ -18,7 +18,7 @@ try:
 except ValueError:
     chiffre_affaires = 0
     
-    try:
+try:
         donnees_client = {
             "raison_sociale": raison_sociale,
             "statut_juridique": statut ,
@@ -29,7 +29,7 @@ except ValueError:
         resultat = analyser_maat(donnees_client)
         return jsonify(resultat)
 
-    except Exception as e:
+except Exception as e:
         return jsonify({"erreur": f"Erreur de traitement : {str(e)}"})
 
 if __name__ == '__main__':
