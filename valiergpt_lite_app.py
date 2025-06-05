@@ -10,17 +10,18 @@ CORS(app)
 @app.route('/analyse', methods=['POST'])
 def analyse():
     try:
-        data = request.get_json(force=True)
-        print("📥 Données reçues :", data)
+        donnees_client = {
+            "raison_sociale": request.form.get("raison_sociale", ""),
+            "statut_juridique": request.form.get("statut_juridique", "").lower(),
+            "activite_principale": request.form.get("activite_principale", "").lower(),
+            "chiffre_affaires": float(request.form.get("chiffre_affaires", 0))
+        }
 
-        # Normalisation de l'activité si présente
-        if "activite_principale" in data:
-            data["activite_principale"] = normalize_activite(data["activite_principale"])
+        resultat = analyser_maat(donnees_client)
+        return jsonify(resultat)
 
-        resultats = analyser_maat(data)
-        return jsonify(resultats)
     except Exception as e:
-        return jsonify({"erreur": f"Erreur de traitement : {str(e)}"}), 500
+        return jsonify({"erreur": f"Erreur de traitement : {str(e)}"})
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=10000)
