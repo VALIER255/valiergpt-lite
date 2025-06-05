@@ -2,7 +2,7 @@
 from maat_logique_decennale_allianz import verifier_eligibilite_allianz_decennale
 
 
-def analyser_maat(donnees_client: dict) -> dict:
+def analyser(donnees_client: dict) -> dict:
     """
     Analyse les données client en fonction des règles Allianz Décennale.
     Retourne les produits recommandés et éventuelles alertes.
