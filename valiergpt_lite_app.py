@@ -1,7 +1,7 @@
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from maat_engine import analyser as analyser_maat
+from maat_engine import analyser
 from utils_normalize import normalize_activite
 
 app = Flask(__name__)
@@ -21,7 +21,7 @@ def analyse():
         except ValueError:
             chiffre_affaires = 0
 
-        resultat = analyser_maat({
+        resultat = analyser({
             "raison_sociale": raison_sociale,
             "statut_juridique": statut,
             "activite_principale": activite,
