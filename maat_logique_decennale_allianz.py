@@ -50,4 +50,4 @@ def verifier_eligibilite_allianz_decennale(statut: str, activite: str, ca: int) 
 
     # Bloc 6 — Sécurité pour activité non reconnue (si aucune règle n’a matché)
     alertes.append("Aucun produit recommandé avec les données actuelles.")
-    return {"alertes": alertes, "produits_recommandes": produits_recommandes}
+    return {"alertes": alertes, "produits_recommandes": produits_recommandes,"activite": activite_normalisee }
