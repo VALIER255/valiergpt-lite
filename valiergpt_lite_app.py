@@ -9,10 +9,10 @@ CORS(app)
 
 @app.route('/analyse', methods=['POST'])
 def analyse():
-data = request.get_json(force=True)
-raison_sociale = data.get("raison_sociale", "")
-statut = data.get("statut_juridique", "").lower()
-activite = data.get("activite_principale", "").lower()
+    data = request.get_json(force=True)
+    raison_sociale = data.get("raison_sociale", "")
+    statut = data.get("statut_juridique", "").lower()
+    activite = data.get("activite_principale", "").lower()
 try:
     chiffre_affaires = float(data.get("chiffre_affaires", 0))
 except ValueError:
