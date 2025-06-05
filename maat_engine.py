@@ -12,17 +12,17 @@ def analyser(donnees_client: dict) -> dict:
 
     statut = donnees_client.get("statut_juridique", "").lower()
     activite = donnees_client.get("activite_principale", "").lower()
-    # chiffre_affaires = donnees_client.get("chiffre_affaires", 0)
-    chiffre_affaires = 258236
-
+    chiffre_affaires = donnees_client.get("chiffre_affaires", 0)
+    # chiffre_affaires = 258236
+    print("DEBUG:", chiffre_affaires)
     resultats = verifier_eligibilite_allianz_decennale(
         statut, activite, chiffre_affaires
     )
-    print("DEBUG:", resultats)  # TEMPORAIRE pour test Render (à commenter après)
+    # print("DEBUG:", resultats)  # TEMPORAIRE pour test Render (à commenter après)
     if resultats.get("eligibilite"):
         produits.extend(resultats.get("produits_recommandes", []))
     else:
         alertes.extend(resultats.get("alertes", []))
 
-    return {"produits_recommandes": produits, "alertes": alertes}
+    return {"produits_recommandes": produits, "alertes": alertes , "input":{"statut":statut,"activite":activite,"chiffre_affaires":chiffre_affaires}}
 
