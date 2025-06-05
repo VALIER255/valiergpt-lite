@@ -9,14 +9,23 @@ CORS(app)
 
 @app.route('/analyse', methods=['POST'])
 def analyse():
+data = request.get_json(force=True)
+raison_sociale = data.get("raison_sociale", "")
+statut = data.get("statut_juridique", "").lower()
+activite = data.get("activite_principale", "").lower()
+try:
+    chiffre_affaires = float(data.get("chiffre_affaires", 0))
+except ValueError:
+    chiffre_affaires = 0
+    
     try:
         donnees_client = {
-            "raison_sociale": request.form.get("raison_sociale", ""),
-            "statut_juridique": request.form.get("statut_juridique", "").lower(),
-            "activite_principale": request.form.get("activite_principale", "").lower(),
-            "chiffre_affaires": float(request.form.get("chiffre_affaires", 0))
+            "raison_sociale": raison_sociale,
+            "statut_juridique": statut ,
+            "activite_principale": activite,
+            "chiffre_affaires": chiffre_affaires
         }
-
+        
         resultat = analyser_maat(donnees_client)
         return jsonify(resultat)
 
